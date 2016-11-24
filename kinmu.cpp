@@ -34,6 +34,7 @@ public:
   int getBeforeDay(){return beforeDay;};
   int getBeforeTanmu(){return beforeTanmu;};
   int getCanWork(){return canWork;}; //働ける人数を返す
+  int getStaff(){return staff;};
   void setStaff(int s){staff=s;}; //staffのidをセットする。0なら未設定
   void setNext(int d, int t);
   void setBefore(int d, int t);
@@ -250,23 +251,45 @@ int main(){
   }
 
   int day_tmp;
-  day=1;
-  tanmu=1;
+  int maxPriority;
+  int maxID;
+  int s_tmp;
+  int pr;
   day=kinmu[0][0].getNextDay();
   tanmu=kinmu[0][0].getNextTanmu();
   while(day>0 && day<dayNum){
     maxPriority=0;
-    for(s=1;s<staffNum;s++){
-      
-    day_tmp = kinmu[day][tanmu].getNextDay();
-    tanmu = kinmu[day][tanmu].getNextTanmu();
-    day = day_tmp;
-    //  cout << day;
-    // cout << tanmu;
-    //ここに入れ替えアルゴリズムを割り当て
-
+    s_tmp=kinmu[day][tanmu].getStaff();
+    kinmu[day][tanmu].setStaff(0);
+    staff[s_tmp].setKinmu(day,0);
+    //s_tmp=s_tmp+1;
+    for(s=s_tmp+1;s<staffNum;s++){
+      pr=staff[s].getPriority(day,tanmu);
+      if(pr>=maxPriority){
+	maxPriority=pr+1; //OnajiPriorityNaraWakaiIDwoYusen.
+	maxID=s;
+      }
+    }
+    if(maxPriority<2){
+      //NoOneCanWork
+      day_tmp = kinmu[day][tanmu].getBeforeDay();
+      tanmu = kinmu[day][tanmu].getBeforeTanmu();
+      day = day_tmp;
+    }else{
+      //KinmuAssign
+      kinmu[day][tanmu].setStaff(s);
+      staff[s].setKinmu(day,tanmu);
+      day_tmp = kinmu[day][tanmu].getNextDay();
+      tanmu = kinmu[day][tanmu].getNextTanmu();
+      day = day_tmp;
+    }
   }
-  */
+
+  if(day=0){
+    cout << "Error!" << endl;
+  }else{
+    cout << "Done." << endl;
+  }
   /*
     ここまででkinmu[0][0]のnextに
     一番勤務可能者が少ない日・担務が
