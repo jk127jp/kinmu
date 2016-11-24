@@ -7,6 +7,7 @@ using namespace std;
 const int staffNum = 9+1; // 社員数
 const int tanmuNum =3+1; // 担務数
 const int dayNum=30+1;
+const int mawariHit=2; // 回りがヒットした場合の加算値
 
 class Staff{
 public:
@@ -95,10 +96,52 @@ void Staff::setKinmu(int d, int t){
 
 int Staff::getPriority(int d, int t){
   int ans;
+  int bfr=1;
+  int aft=1;
+  int i;
+  int mawari;
   if (kinmu[d]+kinmu[d+1]>0){
     ans = 0;
   }else{
-    ans = tanmu[t];
+    for(i=4;i>0;i--){ //勤務が連続していないかチェック
+      if(d-i<1){
+	bfr=0;
+	if(kinmu[d+i+1]>0 && kinmu[d+i+1]<900){
+	  aft+=1;
+	}else{
+	  aft=0;
+	}
+      }else if(d+i+1>dayNum){
+	if(kinmu[d-i]>0 && kinmu[d-i]<900){
+	  bfr+=1;
+	}else{
+	  bfr=0;
+	}
+	aft=0;
+      }else{
+	if(kinmu[d-i]>0 && kinmu[d-i]<900){
+	  bfr+=1;
+	}else{
+	  bfr=0;
+	}
+	if(kinmu[d+i+1]>0 && kinmu[d+i+1]<900){
+	  aft+=1;
+	}else{
+	  aft=0;
+	}
+      }
+    }
+
+    if(bfr+aft>3){ // 5連勤になる場合
+      ans=0;
+    }else{
+      if((d-1)%3==group-1){
+	mawari=mawariHit;
+      }else{
+	mawari=0;
+      }
+      ans = tanmu[t]+mawari;
+    }
   }
   return ans;
 }
