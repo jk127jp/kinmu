@@ -36,7 +36,8 @@ public:
   int getBeforeTanmu(){return beforeTanmu;};
   int getCanWork(){return canWork;}; //働ける人数を返す
   int getStaff(){return staff;};
-  void setStaff(int s){staff=s;}; //staffのidをセットする。0なら未設定
+  int getPriority(){return priority;};
+  void setStaff(int s, int pr){staff=s; priority=pr;}; //staffのidをセットする。0なら未設定
   void setNext(int d, int t);
   void setBefore(int d, int t);
   void setCanWork(int cw);
@@ -50,6 +51,7 @@ private:
   int beforeTanmu;
   int staff;
   int canWork;
+  int priority;
 };
 
 Kinmu::Kinmu(){
@@ -61,6 +63,7 @@ Kinmu::Kinmu(){
   beforeTanmu=0;
   staff=0;
   canWork=0;
+  priority=100;
 }
 void Kinmu::setCanWork(int cw){
   canWork=cw;
@@ -92,6 +95,11 @@ void Staff::setProperty(int v, int g, int *t){
 
 void Staff::setKinmu(int d, int t){
   kinmu[d]=t;
+  if(d<dayNum){
+    if(t==0){
+      kinmu[d+1]=t;
+    }
+  }
 }
 
 int Staff::getPriority(int d, int t){
@@ -102,6 +110,8 @@ int Staff::getPriority(int d, int t){
   int mawari;
   if (kinmu[d]+kinmu[d+1]>0){
     ans = 0;
+  }else if(tanmu[t]==0){
+    ans=0;
   }else{
     for(i=4;i>0;i--){ //勤務が連続していないかチェック
       if(d-i<1){
@@ -279,10 +289,10 @@ int main(){
       }
     }
     
-    //cout << "(" << minDay << " " << minTanmu << " " << minCanWork << ")";
+    cout << "(" << minDay << " " << minTanmu << " " << minCanWork << ")" << endl;
     
     if(minCanWork<staffNum+1){
-      cout << "(" << tmp_beforeDay << " " << tmp_beforeTanmu << " " << minDay << " " << minTanmu << " " << minCanWork << ")";
+      //cout << "(" << tmp_beforeDay << " " << tmp_beforeTanmu << " " << minDay << " " << minTanmu << " " << minCanWork << ")";
       kinmu[tmp_beforeDay][tmp_beforeTanmu].setNext(minDay,minTanmu);
       kinmu[minDay][minTanmu].setBefore(tmp_beforeDay,tmp_beforeTanmu);
       tmp_beforeDay=minDay;
@@ -297,31 +307,44 @@ int main(){
   int maxPriority;
   int maxID;
   int s_tmp;
+  int pr_tmp;
   int pr;
   day=kinmu[0][0].getNextDay();
   tanmu=kinmu[0][0].getNextTanmu();
   while(day>0 && day<dayNum){
     maxPriority=0;
     s_tmp=kinmu[day][tanmu].getStaff();
-    kinmu[day][tanmu].setStaff(0);
-    staff[s_tmp].setKinmu(day,0);
-    //s_tmp=s_tmp+1;
-    for(s=s_tmp+1;s<staffNum;s++){
+    pr_tmp=kinmu[day][tanmu].getPriority();
+    // kinmu[day][tanmu].setStaff(0,0);
+    // staff[s_tmp].setKinmu(day,0);
+    for(s=1;s<staffNum;s++){
       pr=staff[s].getPriority(day,tanmu);
-      if(pr>=maxPriority){
-	maxPriority=pr+1; //OnajiPriorityNaraWakaiIDwoYusen.
-	maxID=s;
+      if(pr>maxPriority){
+	if(pr==pr_tmp && s>s_tmp){
+	  maxPriority=pr;
+	  maxID=s;
+	}else if(pr<pr_tmp){
+	  maxPriority=pr;
+	  maxID=s;
+	}
       }
     }
     if(maxPriority<2){
       //NoOneCanWork
+      kinmu[day][tanmu].setStaff(0,0);
+      staff[s_tmp].setKinmu(day,0);
       day_tmp = kinmu[day][tanmu].getBeforeDay();
       tanmu = kinmu[day][tanmu].getBeforeTanmu();
-      day = day_tmp;
+      if(day==0){
+	day=-1;
+      }else{
+	day = day_tmp;
+      }
+      cout << "D(" << day << " " << tanmu << " " << kinmu[day][tanmu].getStaff() << ")" << endl;
     }else{
       //KinmuAssign
-      //cout << "(" << day << " " << tanmu << " " << 
-      kinmu[day][tanmu].setStaff(maxID);
+      cout << "A(" << day << " " << tanmu << " " << maxID << ")" << endl;
+      kinmu[day][tanmu].setStaff(maxID,maxPriority);
       staff[maxID].setKinmu(day,tanmu);
       staff[maxID].setKinmu(day+1,100);//Ake
       day_tmp = kinmu[day][tanmu].getNextDay();
@@ -330,7 +353,7 @@ int main(){
     }
   }
 
-  if(day=0){
+  if(day==0){
     cout << "Error!" << endl;
   }else{
     cout << "Done." << endl;
