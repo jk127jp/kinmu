@@ -277,8 +277,10 @@ int main(){
       day = day_tmp;
     }else{
       //KinmuAssign
-      kinmu[day][tanmu].setStaff(s);
-      staff[s].setKinmu(day,tanmu);
+      //cout << "(" << day << " " << tanmu << " " << 
+      kinmu[day][tanmu].setStaff(maxID);
+      staff[maxID].setKinmu(day,tanmu);
+      staff[maxID].setKinmu(day+1,100);//Ake
       day_tmp = kinmu[day][tanmu].getNextDay();
       tanmu = kinmu[day][tanmu].getNextTanmu();
       day = day_tmp;
@@ -297,6 +299,14 @@ int main(){
     もっとも優先度が低いkinmuには、
     nextDayに32が割り当てられている。
   */
+
+  for(day=1;day<dayNum;day++){
+    cout << day << " : ";
+    for(tanmu=1;tanmu<tanmuNum;tanmu++){
+      cout << kinmu[day][tanmu].getStaff() << " ";
+    }
+    cout << endl;
+  }
   
   return 0;
 }
