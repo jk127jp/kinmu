@@ -8,6 +8,7 @@ const int staffNum = 9+1; // 社員数
 const int tanmuNum =3+1; // 担務数
 const int dayNum=30+1;
 const int mawariHit=2; // 回りがヒットした場合の加算値
+const int defaultPriority=100; // 標準の優先度
 
 class Staff{
 public:
@@ -63,7 +64,7 @@ Kinmu::Kinmu(){
   beforeTanmu=0;
   staff=0;
   canWork=0;
-  priority=100;
+  priority=defaultPriority;
 }
 void Kinmu::setCanWork(int cw){
   canWork=cw;
@@ -329,9 +330,9 @@ int main(){
 	}
       }
     }
-    if(maxPriority<2){
+    if(maxPriority<1){
       //NoOneCanWork
-      kinmu[day][tanmu].setStaff(0,0);
+      kinmu[day][tanmu].setStaff(0,defaultPriority);
       staff[s_tmp].setKinmu(day,0);
       day_tmp = kinmu[day][tanmu].getBeforeDay();
       tanmu = kinmu[day][tanmu].getBeforeTanmu();
