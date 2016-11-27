@@ -315,6 +315,7 @@ int main(){
   while(day>0 && day<dayNum){
     maxPriority=0;
     s_tmp=kinmu[day][tanmu].getStaff();
+    staff[s_tmp].setKinmu(day,0);
     pr_tmp=kinmu[day][tanmu].getPriority();
     // kinmu[day][tanmu].setStaff(0,0);
     // staff[s_tmp].setKinmu(day,0);
@@ -332,15 +333,14 @@ int main(){
     }
     if(maxPriority<1){
       //NoOneCanWork
+      cout << "NoOne (" << day << " " << tanmu << ")" << endl;
       kinmu[day][tanmu].setStaff(0,defaultPriority);
-      staff[s_tmp].setKinmu(day,0);
+      //staff[s_tmp].setKinmu(day,0);
       day_tmp = kinmu[day][tanmu].getBeforeDay();
       tanmu = kinmu[day][tanmu].getBeforeTanmu();
-      if(day==0){
-	day=-1;
-      }else{
-	day = day_tmp;
-      }
+      day = day_tmp;
+      //前の日、坦務の呼び出し
+      //staff[s_tmp].setKinmu(day,0);
       cout << "D(" << day << " " << tanmu << " " << kinmu[day][tanmu].getStaff() << ")" << endl;
     }else{
       //KinmuAssign
